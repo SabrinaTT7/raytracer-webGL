@@ -51,9 +51,9 @@
 
         <br><br>
         <center>
-          
+
           <img id="background" src="background_kilimanjaro.jpg" hidden></img>
-         
+
            <input type='checkbox' id='anti-alias-checkbox' onchange='alias();'>anti-aliasing</input>
           <br>
           <canvas width=600 height=400 id='canvas-raytracer'></canvas>
@@ -73,17 +73,17 @@
             <option value='6'>my scene</option>
           </select>
           <br>
-          <select id='select-mode' onchange='mode();'>
+          <!-- <select id='select-mode' onchange='mode();'>
             <option value='1'>debugging</option>
             <option value='2'>rendered</option>
-          </select>
+          </select> -->
         </center>
         <hr>
         <h3>To generate image, select "image," "my scene," and "rendered"</h3>
         <h4>Description</h4>
         <i>
           Describe your ray tracer here.
-          This will include a discussion of any research you did to implement the features you chose. 
+          This will include a discussion of any research you did to implement the features you chose.
           For example, how did you intersect rays with triangles?
           How did you compute the background color from an image?
           How did you texture your objects?
@@ -112,7 +112,7 @@
         </i>
         <br>
         <p>
-          I set each scene as described in the instructions. For checkpoint one, there is a simple red sphere.  
+          I set each scene as described in the instructions. For checkpoint one, there is a simple red sphere.
         </p>
         <img id="checkpoint1" src="results/checkpoint1.png" width="600" height="200" ></img>
         <p>For checkpoint two, there are a few spheres to show that the raytracer can correctly trace from the closest sphere at any given point.</p>
@@ -129,7 +129,7 @@
         <p>I implemented an anti-aliasing feature.</p>
         <img id="anti_aliasing" src="results/anti_aliasing.png" width="600" height="200" ></img>
         <img id="anti_aliasing1" src="results/anti_aliasing.1.png" width="600" height="200" ></img>
-        <p>My personal favorite, the ability to render triangle meshes. This one allowed me to make this awesome scene with a giant crystal baby elephant in front of Mt. Kilimanjaro. (I love baby elephants.) Partly inspired by your giraffe art! I made the mesh myself in Blender and then copied the vertex and triangle data from a python script. :)</p>
+        <p>My personal favorite, the ability to render triangle meshes. This one allowed me to make this awesome scene with a giant crystal baby elephant in front of Mt. Kilimanjaro. (I love baby elephants.) Partly inspired by my Professor's giraffe art! I made the mesh myself in Blender and then copied the vertex and triangle data from a python script. :)</p>
         <img id="elephant" src="results/elephant.png" width="600" height="200" ></img>
         <p>Here's a bigger version of the elephant because he's my favorite.</p>
         <img id="elephant1" src="results/elephant_copy.png" width="600" height="400" ></img>
@@ -162,7 +162,7 @@
     let select = document.getElementById('select-background');
     raytracer.sky = select.value;
     raytracer.draw();
-   
+
   }
 
   function runCheckpoint() {
@@ -194,7 +194,7 @@
     let sphere = new Sphere(params);
     raytracer.objects.push(sphere);
 
-    
+
 
     // render the scene
     raytracer.draw();
@@ -421,7 +421,7 @@
       'material': new Material({'type':'refractive','color':[0.5,0.5,0.5], 'strength':.9}) ,
       'triangles':[8, 6, 9, 1, 8, 9, 9, 10, 2, 2, 1, 9, 6, 11, 9, 5, 8, 1, 4, 6, 5, 13, 10, 11, 5, 6, 8, 7, 4, 5, 7, 5, 12, 13, 0, 10, 11, 10, 9, 4, 14, 13, 13, 14, 3, 4, 11, 6, 13, 3, 0, 14, 7, 3, 14, 4, 7, 4, 13, 11, 3, 7, 12, 5, 1, 12, 1, 2, 0, 12, 1, 0, 2, 10, 0, 0, 3, 12],
       'vertices':[0.03, 0.65, -0.11, -0.47, 1.09, -0.48, -0.17, 1.17, -0.22, -0.03, 0.23, -0.24, -0.68, 0.15, -0.08, -0.71, 0.64, -0.52, -0.79, 0.68, -0.0, -0.56, 0.16, -0.39, -0.77, 1.05, -0.32, -0.49, 1.23, -0.06, 0.04, 0.95, -0.2, -0.34, 0.81, 0.12, -0.54, 0.38, -0.51, -0.14, 0.42, 0.05, -0.31, 0.05, -0.17]
-      
+
     }
     let head = new Mesh(params_head);
     raytracer.objects.push(head);
@@ -500,7 +500,7 @@
     // render the scene
     raytracer.draw();
   }
-  
+
 </script>
 
 </html>

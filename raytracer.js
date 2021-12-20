@@ -3,7 +3,7 @@ function RayTracer(canvasID) {
    * Initializes an instance of the RayTracer class.
    * You may also wish to set up your camera here.
    * (feel free to modify input parameters to set up camera).
-   * 
+   *
    * @param canvasID (string) - id of the canvas in the DOM where we want to render our image
    */
   // setup the canvas
@@ -15,7 +15,7 @@ function RayTracer(canvasID) {
 
   this.aliasing = false;
   //initialize to debugging mode
-  this.index = 10;
+  this.index = 1;
 
   // initialize the objects and lights
   this.objects = new Array();
@@ -44,7 +44,7 @@ RayTracer.prototype.draw = function() {
   // get the canvas and the image data we will write to
   let context = this.canvas.getContext('2d');
   let image = context.createImageData(this.canvas.width,this.canvas.height);
-  
+
 
   //setup the image stuff for the background image
   let background_image = document.getElementById('background');
@@ -73,13 +73,13 @@ RayTracer.prototype.draw = function() {
     let obj = this.objects[o];
 
     if (obj.type === 'mesh'){
-      
+
       let new_objs = obj.setUp();
       this.objects.pop(o);
       for (let i = 0; i < new_objs.length; i ++){
         this.objects.push(new_objs[i]);
       }
-      
+
     }
    // console.log(this.objects[o]);
   }
@@ -90,14 +90,14 @@ RayTracer.prototype.draw = function() {
   // loop through the canvas pixels //j < ny, i<  nx
   for (let j = 0; j < ny; j+=this.index) {
     for (let i = 0; i < nx; i+= this.index) {
-      
 
-      
+
+
       // compute pixel color
       let color = vec3.create();
       let color_sum = vec3.fromValues(0,0,0);
       let closest_color = vec3.create();
-     
+
       //keep track of the closest intersection;
       let range;
       if (this.aliasing ===true){
@@ -107,12 +107,12 @@ RayTracer.prototype.draw = function() {
       else{
         range = 1;
       }
-     
-     
+
+
       //for i in range range
       for (let k = 0; k < range; k++){
 
-    
+
         let px;
         let py;
         if (k === 0){
@@ -129,29 +129,29 @@ RayTracer.prototype.draw = function() {
         }
 
         let closest = tmax;
-        
+
         // cast a ray through (px,py) and call some 'color' function
         let ray = this.camera.getRay(px, py);
-        
+
 
         //initialize the closest color to be the background color
         vec3.copy(closest_color, this.background(ray));
         //keep track of hits
         let miss = true;
         for (let o = 0; o < this.objects.length; o++){
-            
+
           let obj = this.objects[o];
           if (obj.type !== 'mesh'){
              //console.log(obj);
-            
+
             let check = obj.intersect(ray, tmin, tmax);
             if (check !== undefined){
               miss = false;
               //color according to the closest intersection
               if (check.t < closest){
                 //call the color function
-                new_color = this.color(ray, check, 10); 
-                
+                new_color = this.color(ray, check, 10);
+
                 vec3.copy(closest_color,  new_color);
                 closest = check.t;
               }
@@ -159,7 +159,7 @@ RayTracer.prototype.draw = function() {
           }
         }
         vec3.add(color_sum, color_sum, closest_color);
-      
+
       }
       //divide the sum by the amount of samples taken
       vec3.scale(color, color_sum, 1/range);
@@ -171,14 +171,14 @@ RayTracer.prototype.draw = function() {
   context.putImageData(image,0,0);
 }
 RayTracer.prototype.color = function(ray, hit, depth){
-  
+
   //if we have reached maximum recursion depth, return background color.
   if (depth === 0){
     return vec3.fromValues(0,0,0);
-    
+
   }
   let color = vec3.create();
-  
+
   //save tmin and tmax for convenience
   const tmin = .001;
   const tmax = 100000000000000000000; //ie20 ish
@@ -206,7 +206,7 @@ RayTracer.prototype.color = function(ray, hit, depth){
     let shadow_ray = new Ray({'point': hit.intersection, 'direction': dir});
     //save this for backgound image purposes
     shadow_ray.abnormal_direction = abnormal;
-    
+
     //check if the ray hits any of the objects in the scene
     for (let j = 0; j < this.objects.length; j++){
       if (this.objects[j].type !== 'mesh'){
@@ -230,13 +230,13 @@ RayTracer.prototype.color = function(ray, hit, depth){
   if (hit.material !== undefined){
     scattered_ray = hit.material.scatter(ray, hit);
   }
-  
+
   if (scattered_ray === undefined){
     return color;
   }
   //calculate new_hit information for this ray
   let color_scattered = vec3.create();
-  let closest = tmax; 
+  let closest = tmax;
 
   let new_hit;
   //loop through all the objects and call the color function recursively
@@ -245,20 +245,20 @@ RayTracer.prototype.color = function(ray, hit, depth){
         if (obj.type !== "mesh"){
           let new_hit = obj.intersect(scattered_ray, tmin, tmax);
           if (new_hit !== undefined){
-           
+
             //color according to the closest intersection
             if (new_hit.t < closest){
               //call the color function
               //use new hit information here to replicate what is done in draw
               color_scattered = this.color(scattered_ray, new_hit, depth -1);
-                
-              
-          
+
+
+
               closest = new_hit.t;
             }
           }
         }
-        
+
       }
     //if we havent hit anything, we have 'hit' the background
     if (closest === tmax){
@@ -269,18 +269,18 @@ RayTracer.prototype.color = function(ray, hit, depth){
   vec3.scale(color, color, 1-hit.material.strength);
 
   vec3.add(color, color, color_scattered);
-  
+
   return color;
-  
+
 }
 
 RayTracer.prototype.background = function(ray) {
   /**
    * Computes the background color for a ray that goes off into the distance.
-   * 
+   *
    * @param ray - ray with a 'direction' (vec3) and 'point' (vec3)
    * @returns a color as a vec3 with (r,g,b) values within [0,1]
-   * 
+   *
    * Note: this assumes a Ray class that has member variable ray.direction.
    * If you change the name of this member variable, then change the ray.direction[1] accordingly.
   **/
@@ -305,9 +305,9 @@ RayTracer.prototype.background = function(ray) {
 
     const nx = this.background_image.width;
     const ny = this.background_image.height;
-    //convert to i and j 
+    //convert to i and j
 
-    //let px = (i + 0.5) / nx;  
+    //let px = (i + 0.5) / nx;
     let i = (px * nx) -.5;
     //let py = (ny - j - 0.5) / ny;
     let j = (py * ny + .5 - ny) * -1;
@@ -320,13 +320,13 @@ RayTracer.prototype.background = function(ray) {
     const index_y = j * this.background_image.width;
     let index = index_x + index_y;
     index = index * 4 ;
-    
+
     //grab the pixel
     const r = this.data[index]/255;
     const g = this.data[index +1]/255;
     const b = this.data[index + 2]/255;
 
-    
+
     let color = vec3.fromValues(r, g, b);
 
     //and return it!
@@ -340,12 +340,12 @@ RayTracer.prototype.background = function(ray) {
 RayTracer.prototype.setPixel = function( image , x , y , r , g , b ) {
   /**
    * Sets the pixel color into the image data that is ultimately shown on the canvas.
-   * 
+   *
    * @param image - image data to write to
    * @param x,y - pixel coordinates within [0,0] x [canvas.width,canvas.height]
    * @param r,g,b - color to assign to pixel, each channel is within [0,1]
    * @returns none
-   * 
+   *
    * You do not need to change this function.
   **/
   let offset = (image.width * y + x) * 4;
@@ -372,22 +372,22 @@ Sphere.prototype.intersect = function(ray, tmin, tmax){
   let B = vec3.dot(ray.direction, temp);
 
   let C = vec3.dot(temp, temp) - (this.radius * this.radius);
- 
+
   let discriminant = (B*B) - C;
 
-  
+
   if (discriminant < 0){
-  
+
     return undefined;
   }
   let t1 = -B - Math.sqrt(discriminant);
   let t2 = -B + Math.sqrt(discriminant);
- 
+
   let t;
-  
+
   let strikes = 1; //Initializes strikes to 1
   //you'll see why in a second
-  if (t1 > tmin && t1 < tmax){  
+  if (t1 > tmin && t1 < tmax){
     t = t1;
   }
   else{
@@ -404,13 +404,13 @@ Sphere.prototype.intersect = function(ray, tmin, tmax){
     //you're out!
     return undefined;
   }
-  
+
   //calculate intersect point
   //let intersect = ray.point + ray.direction(t);
   let intersect = vec3.create();
   vec3.scale(intersect, ray.direction, t);
   vec3.add(intersect, intersect, ray.point);
-  
+
   //calculate normal at intersect point
   //xyz coordinates translated from origin
   let n = vec3.create();
@@ -419,19 +419,19 @@ Sphere.prototype.intersect = function(ray, tmin, tmax){
   vec3.sub(translate, zero, this.center);
   vec3.add(n, intersect, translate);
   vec3.normalize(n, n);
-  
+
   //return hit object
   hit = {'t':t, 'color': this.color, 'material': this.material, 'intersection': intersect, 'normal':n, 'name':this.name};
   return hit;
 
- 
-  
+
+
 }
 
 function Light(params) {
   // describes a point light source, storing the location of the light
   // as well as ambient, diffuse and specular components of the light
-  this.location = params.location; // location of 
+  this.location = params.location; // location of
   this.color    = params.color || vec3.fromValues(1,1,1); // default to white (vec3)
   // you might also want to save some La, Ld, Ls and/or compute these from 'this.color'
   this.Ld = vec3.fromValues(1, 1, 1); //for now
@@ -457,7 +457,7 @@ function Material( params ) {
 Material.prototype.shade = function(ray, light, hit){
 
   let l = vec3.create();
- 
+
   //get l direction to light
   vec3.sub(l, light.location, hit.intersection);
   vec3.normalize(l, l);
@@ -481,7 +481,7 @@ Material.prototype.shade = function(ray, light, hit){
   //normalize n even though it is already normalized
   vec3.normalize(hit.normal, hit.normal);
   const ndoth = Math.abs(vec3.dot(hit.normal, h));
-  
+
   //handler for undefined shininess
   if(hit.material.shine === undefined){
     hit.material.shine = 20; //idk hardcoded for now
@@ -489,10 +489,10 @@ Material.prototype.shade = function(ray, light, hit){
   }
   //just another scalar
   const component = Math.max(Math.pow(ndoth, hit.material.shine), 0);
-  
+
   let spec = vec3.create();
   vec3.multiply(spec, hit.material.ks, light.Ls);
- 
+
   vec3.scale(spec, spec, component);
 
   //add them together
@@ -556,7 +556,7 @@ Material.prototype.refract = function(n, v, eta){
   //refract
   let dt = vec3.dot(v,n);
   let n1_over_n2 = 0;
-  
+
   if(dt <= 0){
   //this means we are on the way in
     n1_over_n2 = 1/eta;
@@ -615,16 +615,16 @@ Camera.prototype.setUp = function(){
   vec3.cross(u, this.up, w);
   vec3.normalize(u, u);
 
-  //v = w x u 
+  //v = w x u
   let v = vec3.create();
   vec3.cross(v, w, u);
-  
+
   //compute change of basis
   //transformation to camera space
   let B = mat3.create();
   //translation matrix
   let T = mat3.create();
-  
+
   //remember the wacky way which glm sets up matrices
   //here we are setting first column = u, second to v, third to w
   for(let i = 0; i < 3; i++){
@@ -641,7 +641,7 @@ Camera.prototype.setUp = function(){
 
 
 
-  //calculate d, h, w 
+  //calculate d, h, w
   let dvec = vec3.create();
   vec3.sub(dvec, this.center, this.eye);
   let d = vec3.length(dvec) + this.eye[2];
@@ -667,13 +667,13 @@ Camera.prototype.getRay = function(px, py){
 
   let pw = -this.d;
 
-  
+
   let q = vec3.fromValues(pu, pv, pw);
 
 
   let direction = vec3.create();
   vec3.transformMat3(direction, q, this.basis);
-  //save this so that we can undo this transformation 
+  //save this so that we can undo this transformation
   //for getPixels/ calculating background image
   let abnormal_direction = vec3.create();
   vec3.copy(abnormal_direction, direction); //get it? not normal
@@ -688,29 +688,29 @@ Camera.prototype.getRay = function(px, py){
 
 }
 Camera.prototype.getPixels = function(ray){
-   //expects a ray object 
+   //expects a ray object
    //with property abnormal_direction;
 
   let point = vec3.create();
 
   vec3.transformMat3(point, ray.abnormal_direction, this.inv_basis);
   //console.log(this.basis);
-  
+
   let pu = point[0];
-  
+
   //pu = –w/2 + px*w
   //px * w = pu + w/2
   //px = (pu + w/2)/w
   let px = (pu + (this.w/2))/this.w;
   //console.log(px);
-  
+
   let pv = point[1];
   //pv = –h/2 + py*h
-  //py * h = pv + h/2 
+  //py * h = pv + h/2
   //py = (pv + h/2)/h
   let py = (pv + (this.h/2))/this.h;
 
-  let pixel = vec2.fromValues(px, py); 
+  let pixel = vec2.fromValues(px, py);
 
   return pixel;
 
@@ -719,11 +719,11 @@ Camera.prototype.getPixels = function(ray){
 function Ray(params) {
   // this.px = params.px;
   // this.py = params.py;
-  this.point = params.point; 
+  this.point = params.point;
   this.direction = params.direction;
-  
-  
-  
+
+
+
 }
 
 function Mesh(params) {
@@ -742,12 +742,12 @@ Mesh.prototype.setUp = function(){
     let ind2 = this.triangles[i+1];
     let ind3 = this.triangles[i+2];
 
-  
+
 
     let pt1 = vec3.fromValues(this.vertices[3*ind1], this.vertices[3*ind1+1], this.vertices[3*ind1+2]);
 
     let pt2 = vec3.fromValues(this.vertices[3*ind2], this.vertices[3*ind2+1], this.vertices[3*ind2+2]);
-    
+
     let pt3 = vec3.fromValues(this.vertices[3*ind3], this.vertices[3*ind3+1], this.vertices[3*ind3+2]);
     let tri = new Triangle({'p1': pt1, 'p2':pt2, 'p3':pt3, 'material': this.material});
     //console.log(tri);
@@ -765,20 +765,20 @@ function Triangle(params) {
 }
 Triangle.prototype.intersect = function(ray, tmin, tmax) {
   //given a ray, does it intersect with a triangle
-  
+
   //deference p1 , p2, p3 to make life easier
   const p1 = this.p1;
   const p2 = this.p2;
   const p3 = this.p3;
-  
+
   //we have a system of three equations to find the weights
   //create the vectors that the coefficient matrix is based on
   let first = vec3.create();
   vec3.sub(first, p1, p3);
-  
+
   let second = vec3.create();
   vec3.sub(second, p2, p3);
- 
+
 
   let third = vec3.create();
   vec3.scale(third, ray.direction, -1);
@@ -791,7 +791,7 @@ Triangle.prototype.intersect = function(ray, tmin, tmax) {
   let Ainv = mat3.create();
   mat3.invert( Ainv , A );
 
- 
+
   let b = vec3.create();
   vec3.sub(b, ray.point, p3);
 
@@ -812,24 +812,24 @@ Triangle.prototype.intersect = function(ray, tmin, tmax) {
         intersect = true;
         }
       }
-      
+
     }
   }
   if (intersect === false){
     return undefined;
-    
+
   }
-  //compute normal 
-  //p2 -p1 
+  //compute normal
+  //p2 -p1
   let u = vec3.create();
   vec3.sub(u, p2, p1);
-  
+
 
   //p3 - p1
   let v = vec3.create();
   vec3.sub(v, p3, p1);
 
-  //n = u cross v 
+  //n = u cross v
   let normal = vec3.create();
   vec3.cross(normal, u, v);
 
