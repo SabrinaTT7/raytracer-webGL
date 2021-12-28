@@ -64,7 +64,7 @@
             <option value='image'>image</option>
 
           </select>
-          <select id='select-checkpoint' onchange='runCheckpoint();'>
+          <select id='select-checkpoint'>
             <option value='1'>checkpoint1</option>
             <option value='2'>checkpoint2</option>
             <option value='3'>checkpoint3</option>
@@ -72,6 +72,7 @@
             <option value='5'>checkpoint5</option>
             <option value='6'>my scene</option>
           </select>
+          <button id= "run" onclick="runCheckpoint();">run</button>
           <br>
           <!-- <select id='select-mode' onchange='mode();'>
             <option value='1'>debugging</option>
@@ -79,7 +80,7 @@
           </select> -->
         </center>
         <hr>
-        <h3>To generate image, select "image," "my scene," and have patience! It can be slow."</h3>
+        <h3>To generate image, select "image," "my scene," hit run, and have patience! It can be slow."</h3>
         <h4>Description</h4>
         <i>
           Describe your ray tracer here.
@@ -151,6 +152,7 @@
     else if (checkpoint === 4) checkpoint4();
     else if (checkpoint === 5) checkpoint5();
     else if (checkpoint === 6) myscene();
+    //myscene();
   }
   function alias() {
     let bool = document.getElementById('anti-alias-checkbox').checked;
